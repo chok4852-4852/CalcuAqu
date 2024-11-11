@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมคำนวณการเลี้ยงสัตว์น้ำ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>โปรแกรมคำนวณการเลี้ยงสัตว์น้ำ</h2>
+        <label for="shrimp-rate">อัตราการปล่อยกุ้งต่อไร่ (ตัว):</label>
+        <input type="number" id="shrimp-rate" step="0.01">
+
+        <label for="survival-rate">เป้าหมายอัตราการรอด (%) :</label>
+        <input type="number" id="survival-rate" step="0.01">
+
+        <label for="total-cost">ต้นทุนทั้งหมด (บาท):</label>
+        <input type="number" id="total-cost" step="0.01">
+
+        <label for="feed-quantity">ปริมาณอาหารทั้งหมด (กิโลกรัม):</label>
+        <input type="number" id="feed-quantity" step="0.01">
+
+        <label for="target-size">ขนาดผลผลิตที่ต้องการ (ตัว/กิโลกรัม):</label>
+        <input type="number" id="target-size" step="0.01">
+
+        <label for="selling-price">ราคาจำหน่าย (บาท/กิโลกรัม):</label>
+        <input type="number" id="selling-price" step="0.01">
+
+        <button onclick="calculateShrimpProduction()">คำนวณ</button>
+        
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        function formatNumber(num) {
+            return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function calculateShrimpProduction() {
+            var shrimpRate = parseFloat(document.getElementById('shrimp-rate').value);
+            var survivalRate = parseFloat(document.getElementById('survival-rate').value) / 100;
+            var totalCost = parseFloat(document.getElementById('total-cost').value);
+            var feedQuantity = parseFloat(document.getElementById('feed-quantity').value);
+            var targetSize = parseFloat(document.getElementById('target-size').value);
+            var sellingPrice = parseFloat(document.getElementById('selling-price').value);
+
+            if (isNaN(shrimpRate) || isNaN(survivalRate) || isNaN(totalCost) || isNaN(feedQuantity) || isNaN(targetSize) || isNaN(sellingPrice)) {
+                document.getElementById('result').innerText = "กรุณากรอกข้อมูลให้ครบถ้วน";
+                return;
+            }
+
+            var totalShrimp = shrimpRate * survivalRate;
+            var productionKg = totalShrimp / targetSize;
+            var costPerKg = totalCost / productionKg;
+            var totalRevenue = productionKg * sellingPrice;
+            var netProfit = totalRevenue - totalCost;
+            var returnOnInvestment = (netProfit / totalCost) * 100;
+            var breakEvenPointKg = totalCost / sellingPrice;
+            var FCR = feedQuantity / productionKg;
+            var breakEvenShrimpRate = (totalCost / (sellingPrice * (1 / targetSize))) * (1 / survivalRate);
+            var investmentWorthiness = netProfit >= 0 ? "สมควรลงทุน" : "ไม่สมควรลงทุน";
+            var investmentColor = netProfit >= 0 ? "green" : "red";
+
+            document.getElementById('result').innerHTML = `
+                <p>รายได้จากการขาย: ${formatNumber(totalRevenue)} บาท</p>
+                <p>กำไรสุทธิ: ${formatNumber(netProfit)} บาท</p>
+                <p>ปริมาณผลผลิตที่เกิดจากการเลี้ยง: ${formatNumber(productionKg)} กก.</p>
+                <p>ต้นทุนการผลิตต่อกิโลกรัม: ${formatNumber(costPerKg)} บาท</p>
+                <p>จุดคุ้มทุนในการผลิต: ${formatNumber(breakEvenPointKg)} กก.</p>
+                <p>อัตราการปล่อยลงเลี้ยงเพื่อไม่ให้ขาดทุน: ${formatNumber(breakEvenShrimpRate)} ตัวต่อไร่</p>
+                <p>ผลตอบแทนการผลิต: ${formatNumber(returnOnInvestment)}%</p>
+                <p>ค่า FCR: ${formatNumber(FCR)}</p>
+                <p style="color: ${investmentColor}; font-weight: bold;">สรุปการเลี้ยง: ${investmentWorthiness}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
